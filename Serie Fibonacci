@@ -1,0 +1,44 @@
+.data
+n: .word 10     # entrada para el cálculo de la serie de Fibonacci
+result: .word 0  # resultado de la serie
+
+.text
+.globl main
+main:
+    # cargar los dos primeros números en los registros $t0 y $t1
+    li $t0, 0       # primer número de la serie
+    li $t1, 1       # segundo número de la serie
+
+    # calcular la serie de Fibonacci
+    lw $t2, n       # cargar el valor de n
+    addi $t2, $t2, -2   # restar 2 para obtener la posición correcta
+    bgez $t2, loop      # saltar a loop si n >= 2
+    j end           # saltar a end si n < 2
+
+loop:
+    add $t3, $t0, $t1   # sumar los dos números anteriores
+    add $t0, $t1, $zero # mover los registros hacia adelante
+    add $t1, $t3, $zero # mover los registros hacia adelante
+    addi $t2, $t2, -1   # disminuir el contador
+    bgtz $t2, loop      # volver a loop si el contador es mayor que cero
+
+    # almacenar el resultado en la dirección de memoria "result"
+    sw $t3, result
+
+    # imprimir los primeros 20 números de la serie de Fibonacci
+    li $v0, 1       # código de llamada del sistema para imprimir un entero
+    li $t4, 20      # establecer el límite superior de impresión en 20
+    li $t5, 0       # establecer el contador en cero
+    la $t6, result      # cargar la dirección de memoria "result" en $t6
+
+print_loop:
+    lw $a0, 0($t6)      # cargar el número de la serie en $a0
+    syscall         # imprimir el número de la serie
+    addi $t5, $t5, 1    # incrementar el contador
+    addi $t6, $t6, 4    # mover el puntero de memoria hacia adelante
+    blt $t5, $t4, print_loop # volver a print_loop si no se han impreso los primeros 20 números
+
+end:
+    # terminar el programa
+    li $v0, 10      # código de salida del programa
+    syscall         # terminar el programa
