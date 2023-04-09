@@ -1,0 +1,35 @@
+.data
+    numeros: .word 15, 3, 33   # conjunto de números
+    msg: .asciiz "El número menor es: "   # mensaje para imprimir
+
+.text
+    main:
+        la $s0, numeros   # cargar la dirección de inicio del conjunto de números en $s0
+        lw $s1, ($s0)     # cargar el primer número en $s1
+        lw $s2, 4($s0)    # cargar el segundo número en $s2
+        lw $s3, 8($s0)    # cargar el tercer número en $s3
+
+        # comparar $s1 y $s2 para encontrar el número menor hasta ese momento
+        slt $t0, $s1, $s2  # establecer $t0 a 1 si $s1 < $s2, de lo contrario a 0
+        beq $t0, $zero, menor1   # saltar a menor1 si $s1 >= $s2
+        move $s4, $s1     # establecer $s4 a $s1 si $s1 < $s2
+        j fin             # saltar a fin
+    menor1:
+        move $s4, $s2     # establecer $s4 a $s2 si $s1 >= $s2
+
+        # comparar $s4 y $s3 para encontrar el número menor hasta ese momento
+        slt $t0, $s3, $s4  # establecer $t0 a 1 si $s3 < $s4, de lo contrario a 0
+        beq $t0, $zero, menor2   # saltar a menor2 si $s3 >= $s4
+        move $s4, $s3     # establecer $s4 a $s3 si $s3 < $s4
+        j fin             # saltar a fin
+    menor2:
+
+    fin:
+        li $v0, 4         # cargar el número de servicio de impresión de cadena en $v0
+        la $a0, msg       # cargar la dirección del mensaje en $a0
+        syscall           # imprimir el mensaje
+        li $v0, 1         # cargar el número de servicio de impresión de entero en $v0
+        move $a0, $s4     # cargar el número menor en $a0
+        syscall           # imprimir el número menor
+        li $v0, 10        # cargar el número de servicio de salida del programa en $v0
+        syscall           # salir del programa
